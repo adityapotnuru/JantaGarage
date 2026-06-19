@@ -3,7 +3,8 @@ const {
     createComplaint, 
     getMyComplaints, 
     getComplaintById, 
-    updateComplaintStatus 
+    updateComplaintStatus,
+    getAllComplaints
 } = require('../controllers/complaintController');
 const { authMiddleware, authorizeRoles } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
@@ -12,6 +13,10 @@ const router = express.Router();
 
 // Apply authMiddleware to all routes in this router
 router.use(authMiddleware);
+
+// @route   GET /api/complaints
+// @desc    Get all complaints in system (staff/admin only)
+router.get('/', authorizeRoles('staff', 'admin'), getAllComplaints);
 
 // @route   POST /api/complaints
 // @desc    Citizen submit a new complaint with optional image upload

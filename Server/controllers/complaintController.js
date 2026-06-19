@@ -102,7 +102,7 @@ const getComplaintById = async (req, res) => {
 // @access  Private (Staff/Admin only)
 const updateComplaintStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, assignedTo } = req.body;
 
         // Check if status is valid
         const allowedStatuses = ['Assigned', 'In Progress', 'Resolved'];
@@ -118,12 +118,12 @@ const updateComplaintStatus = async (req, res) => {
             return res.status(404).json({ message: 'Complaint not found.' });
         }
 
-        // Update status and save
+        // Update status
         complaint.status = status;
         
-        // If status is Assigned and assignedTo is not set, or we want to allow updating the handler:
-        if (status === 'Assigned' && req.body.assignedTo) {
-            complaint.assignedTo = req.body.assignedTo;
+        // Handle assignment
+        if (assignedTo) {
+            complaint.assignedTo = assignedTo;
         } else if (status === 'Assigned' && !complaint.assignedTo) {
             // Default assign to current staff member processing it
             complaint.assignedTo = req.user._id;
@@ -133,8 +133,8 @@ const updateComplaintStatus = async (req, res) => {
 
         // Populate updated fields before returning
         const updatedComplaint = await Complaint.findById(complaint._id)
-            .populate('createdBy', 'name email role')
-            .populate('assignedTo', 'name email role');
+            .populate('createdBy', 'name email role phone address')
+            .populate('assignedTo', 'name email role phone address');
 
         res.status(200).json(updatedComplaint);
     } catch (error) {
@@ -146,9 +146,27 @@ const updateComplaintStatus = async (req, res) => {
     }
 };
 
+// @desc    Get all complaints in system
+// @route   GET /api/complaints
+// @access  Private (Staff/Admin only)
+const getAllComplaints = async (req, res) => {
+    try {
+        const complaints = await Complaint.find({})
+            .populate('createdBy', 'name email role phone address')
+            .populate('assignedTo', 'name email role phone address')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(complaints);
+    } catch (error) {
+        console.error('Get all complaints error:', error.message);
+        res.status(500).json({ message: 'Server error while retrieving all complaints' });
+    }
+};
+
 module.exports = {
     createComplaint,
     getMyComplaints,
     getComplaintById,
-    updateComplaintStatus
+    updateComplaintStatus,
+    getAllComplaints
 };

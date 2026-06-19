@@ -61,3 +61,13 @@ export const updateComplaintStatus = async (id, status, assignedTo) => {
         throw error.response?.data || { message: 'Network error occurred while updating status.' };
     }
 };
+
+// @desc    Get all complaints in system (staff/admin only)
+export const getAllComplaints = async () => {
+    try {
+        const response = await axios.get(API_BASE_URL, getAuthHeaders());
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || { message: 'Network error occurred while fetching complaints list.' };
+    }
+};

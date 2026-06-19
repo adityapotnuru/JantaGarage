@@ -3,11 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Home from './pages/Home';
 import Landing from './pages/Landing';
 import SubmitComplaint from './pages/SubmitComplaint';
 import MyComplaints from './pages/MyComplaints';
 import ComplaintDetails from './pages/ComplaintDetails';
+import Layout from './components/Layout';
+import DashboardOverview from './pages/DashboardOverview';
+import AllComplaints from './pages/AllComplaints';
+import AdminUsers from './pages/AdminUsers';
 
 // Protected Route Guard
 const PrivateRoute = ({ children }) => {
@@ -24,7 +27,7 @@ const PrivateRoute = ({ children }) => {
     return user ? children : <Navigate to="/login" replace />;
 };
 
-// Public Route Guard (Redirects to Home if already logged in)
+// Public Route Guard (Redirects to Dashboard if already logged in)
 const PublicRoute = ({ children }) => {
     const { user, loading } = useAuth();
 
@@ -43,74 +46,50 @@ function App() {
     return (
         <AuthProvider>
             <Router>
-                <div className="app-container">
-                    <main className="main-content">
-                        <Routes>
-                            {/* Public Landing Route */}
-                            <Route path="/" element={<Landing />} />
+                <Routes>
+                    {/* Public Landing Route */}
+                    <Route path="/" element={<Landing />} />
 
-                            {/* Protected Dashboard Route */}
-                            <Route 
-                                path="/dashboard" 
-                                element={
-                                    <PrivateRoute>
-                                        <Home />
-                                    </PrivateRoute>
-                                } 
-                            />
+                    {/* Protected Portal Layout Routes */}
+                    <Route 
+                        element={
+                            <PrivateRoute>
+                                <Layout />
+                            </PrivateRoute>
+                        }
+                    >
+                        <Route path="/dashboard" element={<DashboardOverview />} />
+                        <Route path="/submit-complaint" element={<SubmitComplaint />} />
+                        <Route path="/my-complaints" element={<MyComplaints />} />
+                        <Route path="/complaints/:id" element={<ComplaintDetails />} />
+                        <Route path="/all-complaints" element={<AllComplaints />} />
+                        <Route path="/admin-users" element={<AdminUsers />} />
+                    </Route>
 
-                            {/* Protected Complaint Routes */}
-                            <Route 
-                                path="/submit-complaint" 
-                                element={
-                                    <PrivateRoute>
-                                        <SubmitComplaint />
-                                    </PrivateRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/my-complaints" 
-                                element={
-                                    <PrivateRoute>
-                                        <MyComplaints />
-                                    </PrivateRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/complaints/:id" 
-                                element={
-                                    <PrivateRoute>
-                                        <ComplaintDetails />
-                                    </PrivateRoute>
-                                } 
-                            />
+                    {/* Public Auth Routes */}
+                    <Route 
+                        path="/login" 
+                        element={
+                            <PublicRoute>
+                                <Login />
+                            </PublicRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/signup" 
+                        element={
+                            <PublicRoute>
+                                <Signup />
+                            </PublicRoute>
+                        } 
+                    />
 
-                            {/* Public Auth Routes */}
-                            <Route 
-                                path="/login" 
-                                element={
-                                    <PublicRoute>
-                                        <Login />
-                                    </PublicRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/signup" 
-                                element={
-                                    <PublicRoute>
-                                        <Signup />
-                                    </PublicRoute>
-                                } 
-                            />
-
-                            {/* Fallback Route */}
-                            <Route 
-                                path="*" 
-                                element={<Navigate to="/" replace />} 
-                            />
-                        </Routes>
-                    </main>
-                </div>
+                    {/* Fallback Route */}
+                    <Route 
+                        path="*" 
+                        element={<Navigate to="/" replace />} 
+                    />
+                </Routes>
             </Router>
         </AuthProvider>
     );

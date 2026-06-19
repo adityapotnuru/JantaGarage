@@ -32,50 +32,52 @@ const Login = () => {
         setLoading(false);
 
         if (result.success) {
-            navigate('/');
+            navigate('/dashboard');
         } else {
             setError(result.message);
         }
     };
 
     return (
-        <div className="auth-wrapper">
-            <div className="auth-card">
-                <h2>JantaGarage - Sign In</h2>
-                {error && <div className="error-alert">{error}</div>}
-                
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Enter your email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+        <div className="min-h-screen w-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="auth-wrapper">
+                <div className="auth-card">
+                    <h2>JantaGarage - Sign In</h2>
+                    {error && <div className="error-alert">{error}</div>}
                     
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>Email Address</label>
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        
+                        <div className="form-group">
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        
+                        <button type="submit" disabled={loading} className="btn-submit">
+                            {loading ? 'Logging in...' : 'Sign In'}
+                        </button>
+                    </form>
                     
-                    <button type="submit" disabled={loading} className="btn-submit">
-                        {loading ? 'Logging in...' : 'Sign In'}
-                    </button>
-                </form>
-                
-                <div className="auth-footer">
-                    Don't have an account? <Link to="/signup">Sign Up</Link>
+                    <div className="auth-footer">
+                        Don't have an account? <Link to="/signup">Sign Up</Link>
+                    </div>
                 </div>
             </div>
         </div>

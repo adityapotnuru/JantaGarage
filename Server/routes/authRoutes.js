@@ -1,7 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { signup, login, getMe } = require('../controllers/authControllers');
-const { authMiddleware } = require('../middlewares/authMiddleware');
+const { signup, login, getMe, getAllUsers, toggleUserActive, updateUserRole } = require('../controllers/authControllers');
+const { authMiddleware, authorizeRoles } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -37,5 +37,10 @@ router.post(
 // @desc    Get current user profile
 // @access  Private
 router.get('/me', authMiddleware, getMe);
+
+// Admin User Management routes
+router.get('/users', authMiddleware, authorizeRoles('admin'), getAllUsers);
+router.patch('/users/:id/toggle-active', authMiddleware, authorizeRoles('admin'), toggleUserActive);
+router.patch('/users/:id/role', authMiddleware, authorizeRoles('admin'), updateUserRole);
 
 module.exports = router;

@@ -144,8 +144,91 @@ const getMe = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}).select('-password').sort({ createdAt: -1 });
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Get all users error:', error.message);
+        res.status(500).json({ message: 'Server error retrieving users list' });
+    }
+};
+
+const toggleUserActive = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        // Prevent self-deactivation
+        if (user._id.toString() === req.user._id.toString()) {
+            return res.status(400).json({ message: 'You cannot deactivate your own account' });
+        }
+
+        user.isActive = !user.isActive;
+        await user.save();
+
+        res.status(200).json({
+            message: `User account ${user.isActive ? 'activated' : 'deactivated'} successfully`,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                isActive: user.isActive
+            }
+        });
+    } catch (error) {
+        console.error('Toggle user active error:', error.message);
+        res.status(500).json({ message: 'Server error updating user status' });
+    }
+};
+
+const updateUserRole = async (req, res) => {
+    const { role } = req.body;
+    if (!['citizen', 'staff', 'admin'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role' });
+    }
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        // Prevent changing oneself's admin role to avoid lockout
+        if (user._id.toString() === req.user._id.toString() && role !== 'admin') {
+            return res.status(400).json({ message: 'You cannot change your own admin role' });
+        }
+
+        user.role = role;
+        await user.save();
+
+        res.status(200).json({
+            message: `User role updated to ${role} successfully`,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                isActive: user.isActive
+            }
+        });
+    } catch (error) {
+        console.error('Update user role error:', error.message);
+        res.status(500).json({ message: 'Server error updating user role' });
+    }
+};
+
 module.exports = {
     signup,
     login,
-    getMe
+    getMe,
+    getAllUsers,
+    toggleUserActive,
+    updateUserRole
 };
