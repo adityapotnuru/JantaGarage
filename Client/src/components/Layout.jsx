@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Layout = () => {
+const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
@@ -16,7 +16,9 @@ const Layout = () => {
     // Define navigation items based on role
     const getNavItems = () => {
         const baseItems = [
-            { path: '/dashboard', label: 'Dashboard Overview', icon: '📊' }
+            { path: '/dashboard', label: 'Dashboard Overview', icon: '📊' },
+            { path: '/reports', label: 'Reports & Analytics', icon: '📈' },
+            { path: '/profile', label: 'My Profile', icon: '👤' }
         ];
 
         if (user?.role === 'citizen') {
@@ -51,6 +53,8 @@ const Layout = () => {
     const getPageTitle = () => {
         const path = location.pathname;
         if (path === '/dashboard') return 'Dashboard Overview';
+        if (path === '/reports') return 'Reports & Analytics';
+        if (path === '/profile') return 'My Profile';
         if (path === '/submit-complaint') return 'Submit a Complaint';
         if (path === '/my-complaints') return 'My Submitted Complaints';
         if (path === '/all-complaints') return 'All Complaints Directory';
@@ -168,7 +172,7 @@ const Layout = () => {
 
                 {/* Sub-components container */}
                 <main className="flex-1 overflow-y-auto bg-slate-50 p-6 sm:p-8">
-                    <Outlet />
+                    {children || <Outlet />}
                 </main>
             </div>
         </div>

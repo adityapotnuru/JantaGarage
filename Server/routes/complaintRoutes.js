@@ -4,14 +4,37 @@ const {
     getMyComplaints, 
     getComplaintById, 
     updateComplaintStatus,
-    getAllComplaints
+    getAllComplaints,
+    getPublicReport
 } = require('../controllers/complaintController');
 const { authMiddleware, authorizeRoles } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
-// Apply authMiddleware to all routes in this router
+// Public route for complaints data report (accessible with/without login)
+router.get('/public-report', getPublicReport);
+
+// Public route to manually trigger auto-escalation check (useful for testing/cron)
+router.post('/trigger-escalation', async (req, res) => {
+    try {
+        const { runAutoEscalation } = require('../services/escalationService');
+        const results = await runAutoEscalation();
+        res.status(200).json({
+            success: true,
+            message: 'Auto-escalation check completed successfully',
+            results
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to run auto-escalation check',
+            error: error.message
+        });
+    }
+});
+
+// Apply authMiddleware to all routes below in this router
 router.use(authMiddleware);
 
 // @route   GET /api/complaints

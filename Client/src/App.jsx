@@ -11,6 +11,8 @@ import Layout from './components/Layout';
 import DashboardOverview from './pages/DashboardOverview';
 import AllComplaints from './pages/AllComplaints';
 import AdminUsers from './pages/AdminUsers';
+import Profile from './pages/Profile';
+import Reports from './pages/Reports';
 
 // Protected Route Guard
 const PrivateRoute = ({ children }) => {
@@ -48,7 +50,14 @@ function App() {
             <Router>
                 <Routes>
                     {/* Public Landing Route */}
-                    <Route path="/" element={<Landing />} />
+                    <Route 
+                        path="/" 
+                        element={
+                            <PublicRoute>
+                                <Landing />
+                            </PublicRoute>
+                        } 
+                    />
 
                     {/* Protected Portal Layout Routes */}
                     <Route 
@@ -64,6 +73,7 @@ function App() {
                         <Route path="/complaints/:id" element={<ComplaintDetails />} />
                         <Route path="/all-complaints" element={<AllComplaints />} />
                         <Route path="/admin-users" element={<AdminUsers />} />
+                        <Route path="/profile" element={<Profile />} />
                     </Route>
 
                     {/* Public Auth Routes */}
@@ -83,6 +93,9 @@ function App() {
                             </PublicRoute>
                         } 
                     />
+
+                    {/* Public Route (Charts restricted inside page logic) */}
+                    <Route path="/reports" element={<Reports />} />
 
                     {/* Fallback Route */}
                     <Route 

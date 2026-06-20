@@ -1,44 +1,36 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Ensure uploads directory exists relative to process CWD (Server root)
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Note: Cloudinary SDK automatically picks up CLOUDINARY_URL from process.env
 
-// Storage engine configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+// Configure Cloudinary storage for Multer
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'jantagarage_complaints',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 1000, height: 1000, crop: 'limit' }]
     }
 });
 
-// File filter validator (formats allowed: jpg, jpeg, png, webp)
+// File filter validator (extra validation check on client headers)
 const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
-    const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = allowedTypes.test(file.mimetype);
+    const isMimeMatch = allowedTypes.test(file.mimetype);
 
-    if (extName && mimeType) {
+    if (isMimeMatch) {
         cb(null, true);
     } else {
-        cb(new Error('Only image files (jpg, jpeg, png, webp) under 5MB are allowed!'), false);
+        cb(new Error('Only image files (jpg, jpeg, png, webp) are allowed!'), false);
     }
 };
 
-// Multer instance
+// Configured Multer instance for Cloudinary
 const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB limit
     fileFilter: fileFilter
 });
 
-// Export configured middleware
 module.exports = upload.single('image');

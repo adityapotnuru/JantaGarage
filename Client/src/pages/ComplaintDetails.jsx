@@ -164,7 +164,7 @@ const ComplaintDetails = () => {
                                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Attached Image</h4>
                                 <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-50 max-h-96 flex items-center justify-center p-2">
                                     <img 
-                                        src={`http://localhost:5000/${complaint.image}`} 
+                                        src={complaint.image.startsWith('http') ? complaint.image : `http://localhost:5000/${complaint.image}`} 
                                         alt={complaint.title} 
                                         className="max-h-80 object-contain rounded"
                                         onError={(e) => {

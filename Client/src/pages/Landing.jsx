@@ -14,6 +14,9 @@ const Landing = () => {
                     <span className="brand-name">JantaGarage</span>
                 </div>
                 <nav className="landing-nav">
+                    <Link to="/reports" className="nav-btn nav-btn-outline">
+                        Reports
+                    </Link>
                     {user ? (
                         <>
                             <span className="nav-welcome">Hello, {user.name}</span>

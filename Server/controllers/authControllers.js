@@ -224,11 +224,49 @@ const updateUserRole = async (req, res) => {
     }
 };
 
+const updateProfile = async (req, res) => {
+    const { name, phone, address } = req.body;
+
+    if (!name || !name.trim()) {
+        return res.status(400).json({ message: 'Name is required' });
+    }
+
+    try {
+        const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.name = name.trim();
+        user.phone = phone ? phone.trim() : '';
+        user.address = address ? address.trim() : '';
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                isActive: user.isActive
+            }
+        });
+    } catch (error) {
+        console.error('Update profile error:', error.message);
+        res.status(500).json({ message: 'Server error while updating profile' });
+    }
+};
+
 module.exports = {
     signup,
     login,
     getMe,
     getAllUsers,
     toggleUserActive,
-    updateUserRole
+    updateUserRole,
+    updateProfile
 };

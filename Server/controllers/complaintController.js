@@ -25,8 +25,8 @@ const createComplaint = async (req, res) => {
         // Image file path (if uploaded)
         let imagePath = '';
         if (req.file) {
-            // Store as a relative uploads path (e.g. 'uploads/image-123456.png')
-            imagePath = `uploads/${req.file.filename}`;
+            // Store the absolute cloud URL provided by Cloudinary
+            imagePath = req.file.path;
         }
 
         // Create new complaint object
@@ -162,11 +162,22 @@ const getAllComplaints = async (req, res) => {
         res.status(500).json({ message: 'Server error while retrieving all complaints' });
     }
 };
+const getPublicReport = async (req, res) => {
+    try {
+        const complaints = await Complaint.find({}, 'title description category priority status createdAt')
+            .sort({ createdAt: -1 });
+        res.status(200).json(complaints);
+    } catch (error) {
+        console.error('Get public report error:', error.message);
+        res.status(500).json({ message: 'Server error while retrieving public report' });
+    }
+};
 
 module.exports = {
     createComplaint,
     getMyComplaints,
     getComplaintById,
     updateComplaintStatus,
-    getAllComplaints
+    getAllComplaints,
+    getPublicReport
 };
